@@ -19,6 +19,39 @@
     </form>
     <script>
         let socket = io('localhost:3000');
+
+        function renderMessage(message){
+            $('.messages').append('<div class="message"><b>'+message.author+'</b>: '+message.message+'</div>')
+        }
+
+        socket.on('receivedMessage', function(message){
+            renderMessage(message);
+        });
+
+        socket.on('previousMessages', function(messages){
+            for(message of messages){
+                renderMessage(messages);
+            }
+        });
+
+        $('#chat').submit(function(event) {
+            event.preventDefault();
+
+            let autor = $('input[name=username]').val();
+            let message = $('input[name=message]').val();
+
+            if(autor && message){
+                let messageObject = {
+                    author: autor,
+                    message: message,
+                };
+
+                renderMessage(messageObject);
+
+                socket.emit('sendMessage', messageObject);
+            }
+
+        });
     </script>
 </body>
 </html>
